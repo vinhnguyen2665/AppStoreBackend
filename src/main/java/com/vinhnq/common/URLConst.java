@@ -69,6 +69,7 @@ public class URLConst {
 
     public static class APP_INFO {
         public static final String ROOT = "/app";
+        public static final String ROOT_MANIFEST = "/manifest";
         public static class CONTROLLER {
             public static final String ROOT = lang + APP_INFO.ROOT;
 
@@ -76,6 +77,7 @@ public class URLConst {
 
         public static class API {
             public static final String ROOT = api + APP_INFO.ROOT;
+            public static final String ROOT_MANIFEST = api + APP_INFO.ROOT_MANIFEST;
 
             /**
              * <p>Spring considers that anything behind the last dot is a file extension</p>
@@ -89,6 +91,8 @@ public class URLConst {
             public static final String GET_LIST_FOR_HOME = ROOT + "/list-for-home";
             public static final String GET_ICON = ROOT + "/get-icon";
             public static final String GET_APP = ROOT + "/get-app";
+            public static final String GET_APP_LATEST = ROOT + "/{packageName:.+}/{type}/latest";
+            public static final String GET_MANIFEST_LATEST = ROOT_MANIFEST + "/{packageName:.+}/{type}/latest";
             public static final String GET_MANIFEST = ROOT + "/get-manifest";
             public static final String GET_APP_CONDITION = ROOT + "/get-list-condition";
         }

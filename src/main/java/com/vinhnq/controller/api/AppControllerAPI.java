@@ -6,6 +6,7 @@ import com.vinhnq.beans.Version;
 import com.vinhnq.common.CommonConst;
 import com.vinhnq.common.NetUtils;
 import com.vinhnq.common.URLConst;
+import com.vinhnq.common.Utils;
 import com.vinhnq.controller.BaseController;
 import com.vinhnq.service.AppService;
 import org.apache.logging.log4j.LogManager;
@@ -53,12 +54,12 @@ public class AppControllerAPI extends BaseController {
                                              @PathVariable(name = "type") String type,
                                              @PathVariable(name = "versionCode") String versionCode) {
         try {
-            AppInfoBean appInfo = this.appService.getLatestAppInfo(packageName, type,true);
+            AppInfoBean appInfo = this.appService.getLatestAppInfo(packageName, type, true);
             Version latestVersion = new Version(String.valueOf(appInfo.getVersionCode()));
             Version requestVersion = new Version(versionCode);
             int compare = requestVersion.compareTo(latestVersion);
             String status;
-            if(compare >= 0){
+            if (compare >= 0) {
                 status = CommonConst.COMMON_STRING.LATEST;
             } else {
                 status = CommonConst.COMMON_STRING.OLD;
@@ -72,6 +73,7 @@ public class AppControllerAPI extends BaseController {
             jsonObject.put("yourVersion", requestVersion.get()); //http://192.168.100.123:3100/app/apk/com.meishi/
             jsonObject.put("latestUrl", frontEndUrl + "/app" + "/" + appInfo.getAppType() + "/" + appInfo.getPackageName() + "/" + appInfo.getVersionName() + "?id=" + appInfo.getId());
             jsonObject.put("downloadUrl", NetUtils.getURL(request) + "/api/app/get-app?id=" + appInfo.getId());
+            jsonObject.put("updateContent",appInfo.getUpdateContent());
             return new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS, jsonObject);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -89,11 +91,11 @@ public class AppControllerAPI extends BaseController {
         try {
             AppInfoBean appInfo = null;
             if (null == versionCode || CommonConst.COMMON_STRING.LATEST.equals(versionCode)) {
-                appInfo = this.appService.getLatestAppInfo(packageName, type,true);
+                appInfo = this.appService.getLatestAppInfo(packageName, type, true);
             } else {
-                appInfo = this.appService.getAppInfo(packageName, versionCode, type,true);
+                appInfo = this.appService.getAppInfo(packageName, versionCode, type, true);
             }
-            ResponseAPI<AppInfoBean> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS,appInfo);
+            ResponseAPI<AppInfoBean> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS, appInfo);
             return re;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -102,14 +104,14 @@ public class AppControllerAPI extends BaseController {
     }
 
     @RequestMapping(value = {URLConst.APP_INFO.API.GET_LIST}, method = RequestMethod.POST)
-   // @ApiOperation(value = URLConst.APP_INFO.API.GET_LIST, authorizations = {@Authorization(value = "jwtToken")})
+    // @ApiOperation(value = URLConst.APP_INFO.API.GET_LIST, authorizations = {@Authorization(value = "jwtToken")})
     @ResponseBody
     public ResponseAPI<List<AppInfoBean>> getListAppInfoBean(HttpServletRequest request,
                                                              ModelMap modelMap) {
         List<AppInfoBean> list = new ArrayList<>();
         try {
             list = this.appService.getAllListAppInfo(CommonConst.DELETE_FLG.NON_DELETE, true);
-            ResponseAPI<List<AppInfoBean>> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS,list);
+            ResponseAPI<List<AppInfoBean>> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS, list);
             re.setRecordsTotal(list.size());
             return re;
         } catch (Exception e) {
@@ -122,11 +124,11 @@ public class AppControllerAPI extends BaseController {
     //@ApiOperation(value = URLConst.APP_INFO.API.GET_LIST_FOR_HOME, authorizations = {@Authorization(value = "jwtToken")})
     @ResponseBody
     public ResponseAPI<List<AppInfoBean>> getListAppInfoBeanForHome(HttpServletRequest request,
-                                                             ModelMap modelMap) {
+                                                                    ModelMap modelMap) {
         List<AppInfoBean> list = new ArrayList<>();
         try {
             list = this.appService.getListAppInfoForHome(true);
-            ResponseAPI<List<AppInfoBean>> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS,list);
+            ResponseAPI<List<AppInfoBean>> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS, list);
             re.setRecordsTotal(list.size());
             return re;
         } catch (Exception e) {
@@ -135,14 +137,14 @@ public class AppControllerAPI extends BaseController {
         }
     }
 
-    @RequestMapping(value = {URLConst.APP_INFO.API.GET_APP_CONDITION}, method = RequestMethod.POST, produces = "application/json; charset=UTF-8" )
-   // @ApiOperation(value = URLConst.APP_INFO.API.GET_APP_CONDITION, authorizations = {@Authorization(value = "jwtToken")})
+    @RequestMapping(value = {URLConst.APP_INFO.API.GET_APP_CONDITION}, method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+    // @ApiOperation(value = URLConst.APP_INFO.API.GET_APP_CONDITION, authorizations = {@Authorization(value = "jwtToken")})
     @ResponseBody
     public ResponseAPI<List<AppInfoBean>> getListAppInfoBeanCondition(@RequestBody AppInfoBean appInfo) {
         List<AppInfoBean> list = new ArrayList<>();
         try {
             list = this.appService.getListAppCondition(appInfo, true);
-            ResponseAPI<List<AppInfoBean>> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS,list);
+            ResponseAPI<List<AppInfoBean>> re = new ResponseAPI(HttpStatus.OK.value(), CommonConst.COMMON_STRING.SUCCESS, list);
             re.setRecordsTotal(list.size());
             return re;
         } catch (Exception e) {
@@ -160,7 +162,7 @@ public class AppControllerAPI extends BaseController {
          Path path = Paths.get(file.getAbsolutePath());*/
             Optional<AppInfoBean> appInfo = this.appService.getAppInfo(id, false);
             File file = null;
-            if(appInfo.isPresent()){
+            if (appInfo.isPresent()) {
                 file = new File(appInfo.get().getIconPath());
                 InputStream inputStream = new FileInputStream(file);
                 HttpHeaders headers = new HttpHeaders();
@@ -178,20 +180,20 @@ public class AppControllerAPI extends BaseController {
         return null;
     }
 
-    @RequestMapping(value = {URLConst.APP_INFO.API.GET_APP }, method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+    @RequestMapping(value = {URLConst.APP_INFO.API.GET_APP}, method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<InputStreamResource> getApp(HttpServletRequest request, Model model,
-                                                        @RequestParam long id) {
+                                                      @RequestParam long id) {
         try {
             Optional<AppInfoBean> appInfo = this.appService.getAppInfo(id, false);
             File file = null;
-            if(appInfo.isPresent()){
-              file = new File(appInfo.get().getAppPath());
+            if (appInfo.isPresent()) {
+                file = new File(appInfo.get().getAppPath());
                 InputStream inputStream = new FileInputStream(file);
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
                 headers.add("Pragma", "no-cache");
                 headers.add("Expires", "0");
-                headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(appInfo.get().getAppName() + "." + appInfo.get().getAppType(), "UTF-8"));
+                headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(appInfo.get().getAppName() + "_" + appInfo.get().getVersionName() + "." + appInfo.get().getAppType(), "UTF-8"));
                 headers.setContentType(appInfo.get().getMediaType());
                 return ResponseEntity.ok()
                         .headers(headers)
@@ -206,13 +208,14 @@ public class AppControllerAPI extends BaseController {
         }
         return null;
     }
-    @RequestMapping(value = {URLConst.APP_INFO.API.GET_MANIFEST }, method = RequestMethod.GET, produces = "application/x-plist")
+
+    @RequestMapping(value = {URLConst.APP_INFO.API.GET_MANIFEST}, method = RequestMethod.GET, produces = "application/x-plist")
     public ResponseEntity<InputStreamResource> getManifest(HttpServletRequest request,
-                                                @RequestParam long id) {
+                                                           @RequestParam long id) {
         try {
             Optional<AppInfoBean> appInfo = this.appService.getAppInfo(id, false);
             File file = null;
-            if(appInfo.isPresent()){
+            if (appInfo.isPresent()) {
        /*            HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.valueOf("application/x-plist"));
                 file = new File(appInfo.get().getManifestPath());
@@ -232,6 +235,70 @@ public class AppControllerAPI extends BaseController {
                         .headers(headers)
                         .contentLength(file.length())
                         .contentType(MediaType.parseMediaType("application/x-plist"))
+                        .body(new InputStreamResource(inputStream));
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        return null;
+    }
+
+    @RequestMapping(value = {URLConst.APP_INFO.API.GET_APP_LATEST}, method = RequestMethod.GET)
+    public ResponseEntity<InputStreamResource> getAppLatest(HttpServletRequest request, Model model,
+                                                            @PathVariable(name = "packageName") String packageName,
+                                                            @PathVariable(name = "type") String type) {
+        try {
+            AppInfoBean appInfo = this.appService.getLatestAppInfo(packageName, type, true);
+            ;
+            File fileLatest = null;
+            if (null != appInfo && !Utils.isEmpty(appInfo.getAppPath())) {
+                if (appInfo.isEncrypt()) {
+                    appInfo = appInfo.decrypt();
+                }
+                fileLatest = new File(appInfo.getAppPath());
+                InputStream inputStream = new FileInputStream(fileLatest);
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+                headers.add("Pragma", "no-cache");
+                headers.add("Expires", "0");
+                headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(appInfo.getAppName() + "." + appInfo.getAppType(), "UTF-8"));
+                headers.setContentType(appInfo.getMediaType());
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .contentLength(fileLatest.length())
+                        .contentType(appInfo.getMediaType())
+                        .body(new InputStreamResource(inputStream));
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        return null;
+    }
+
+    @RequestMapping(value = {URLConst.APP_INFO.API.GET_MANIFEST_LATEST}, method = RequestMethod.GET)
+    public ResponseEntity<InputStreamResource> getManifestLatest(HttpServletRequest request, Model model,
+                                                                 @PathVariable(name = "packageName") String packageName,
+                                                                 @PathVariable(name = "type") String type) {
+        try {
+            AppInfoBean appInfo = this.appService.getLatestAppInfo(packageName, type, true);
+            ;
+            File fileLatest = null;
+            if (null != appInfo && !Utils.isEmpty(appInfo.getAppPath())) {
+                if (appInfo.isEncrypt()) {
+                    appInfo = appInfo.decrypt();
+                }
+                fileLatest = new File(appInfo.getManifestPath());
+                InputStream inputStream = new FileInputStream(fileLatest);
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+                headers.add("Pragma", "no-cache");
+                headers.add("Expires", "0");
+                headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode(appInfo.getAppName() + "_manifest.plist", "UTF-8"));
+                headers.setContentType(appInfo.getMediaType());
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .contentLength(fileLatest.length())
+                        .contentType(appInfo.getMediaType())
                         .body(new InputStreamResource(inputStream));
             }
         } catch (Exception ex) {

@@ -84,6 +84,11 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
         return re;
     }
 
+//    public static void main(String[] args) {
+//        ReadFileInformationServiceImpl readFileInformationService = new ReadFileInformationServiceImpl();
+//        FileCustom fileCustom = new FileCustom("/home/vinhn/0_PROJECTS/48_RFIDKoteiShisan/04_SourceCode/dxrh1_dxa600_android/app/release/kotei_shisan-20230929-release.apk");
+//        readFileInformationService.readFileAPK(fileCustom, new FileSize(30D, FileSize.MEGABYTE));
+//    }
     @Override
     public AppInfoBean readFileAPK(File apk, FileSize size) {
         try {
@@ -108,7 +113,7 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
                     .max(Comparator.comparing(Icon::getDensity))
                     .orElse(null);
 
-            if ("xml".equals(FilenameUtils.getExtension(maxDensity.getPath()))) {
+            if (null != maxDensity && "xml".equals(FilenameUtils.getExtension(maxDensity.getPath()))) {
                 maxDensity = iconList.stream()
                         .filter(icon -> (!"xml".equals(FilenameUtils.getExtension(icon.getPath()))))
                         .max(Comparator.comparing(Icon::getDensity))

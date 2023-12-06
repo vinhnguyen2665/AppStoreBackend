@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "app_info", schema = "app_store", catalog = "")
+@Table(name = "app_info")
 public class AppInfo {
     private long id;
     private String appType;

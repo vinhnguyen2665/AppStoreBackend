@@ -775,6 +775,9 @@ public class EntityUtils {
         if (null != appInfo.getAppSizeUnit()) {
             appInfoBean.setAppSizeUnit(appInfo.getAppSizeUnit());
         }
+        if (null != appInfo.getUpdateContent()) {
+            appInfoBean.setUpdateContent(appInfo.getUpdateContent());
+        }
 
         if (encrypt) {
             return appInfoBean.encrypt();
