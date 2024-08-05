@@ -45,6 +45,16 @@ public class FileUtils {
         return content;
     }
 
+    public static String readTextFile(File _file) {
+        String content = "";
+        try {
+            content = new String(Files.readAllBytes(Paths.get(_file.getPath())), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
+
     public static void appendStringFile(String my_file_name, String string) throws IOException {
         try {
             Writer output;

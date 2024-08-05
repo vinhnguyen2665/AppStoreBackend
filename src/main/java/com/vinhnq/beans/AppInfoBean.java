@@ -44,6 +44,7 @@ public class AppInfoBean {
     private String manifestResource;
     private Double appSize;
     private String appSizeUnit;
+    private Timestamp certificateExpirationDate;
     private String deleteFlg;
     private String updateContent;
     private Timestamp createDate;

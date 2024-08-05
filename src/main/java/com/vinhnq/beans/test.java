@@ -9,7 +9,11 @@ import java.io.File;
 public class test {
     public static void main(String[] args) {
         ReadFileInformationService readFileInformationService = new ReadFileInformationServiceImpl();
-        readFileInformationService.readFileAPK(new File("C:\\Users\\vinhn\\Downloads\\材料RFIDシステム（仙台製造所） (1).apk"), new FileSize(15D, "MB"));
+        AppInfoBean infoBean = readFileInformationService.readFileIPA(
+                new File("/home/vinhn/Downloads/HiroCargoTest_2.0.ipa"), new FileSize(15D, "MB"),
+                "host");
+        System.out.println(infoBean.toString());
+
     }
 
 

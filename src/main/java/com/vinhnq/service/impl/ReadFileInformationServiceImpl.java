@@ -1,9 +1,7 @@
 package com.vinhnq.service.impl;
 
 
-import com.dd.plist.NSDictionary;
-import com.dd.plist.NSString;
-import com.dd.plist.PropertyListParser;
+import com.dd.plist.*;
 import com.vinhnq.beans.AppInfoBean;
 import com.vinhnq.beans.FileCustom;
 import com.vinhnq.beans.FileSize;
@@ -26,8 +24,12 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,7 +86,7 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
         return re;
     }
 
-//    public static void main(String[] args) {
+    //    public static void main(String[] args) {
 //        ReadFileInformationServiceImpl readFileInformationService = new ReadFileInformationServiceImpl();
 //        FileCustom fileCustom = new FileCustom("/home/vinhn/0_PROJECTS/48_RFIDKoteiShisan/04_SourceCode/dxrh1_dxa600_android/app/release/kotei_shisan-20230929-release.apk");
 //        readFileInformationService.readFileAPK(fileCustom, new FileSize(30D, FileSize.MEGABYTE));
@@ -186,12 +188,14 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
             Pattern oldIconRegular = Pattern.compile("^Payload\\/.*\\.app\\/Icon-?_?\\w*(\\d+(\\.\\d+)?)?.png$");
             Pattern assetRegular = Pattern.compile("^Payload\\/.*\\.app/Assets.car$");
             Pattern infoPlistRegular = Pattern.compile("^Payload\\/.*\\.app/Info.plist$");
+            Pattern embeddedMobileprovision = Pattern.compile("^Payload\\/.*\\.app/embedded.mobileprovision$");
 
             Path outTmpDir = Paths.get(CommonConst.COMMON_FILE.HOME_TMP);
 
             FileUtils.createDirectoryIfNotExists(outTmpDir.toString());
             List<FileCustom> iconList = new ArrayList<>();
             FileCustom fileInfo = null;
+            FileCustom embeddedMobileprovisionFile = null;
 
             ZipInputStream zis = new ZipInputStream(new FileInputStream(ipaFile));
             ZipEntry zipEntry = zis.getNextEntry();
@@ -210,6 +214,8 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
                 }
                 if (infoPlistRegular.matcher(zipEntry.getName()).matches()) {
                     fileInfo = extractFile(outTmpDir, zis, zipEntry);
+                } else if (embeddedMobileprovision.matcher(zipEntry.getName()).matches()) {
+                    embeddedMobileprovisionFile = extractFile(outTmpDir, zis, zipEntry);
                 }
 
                 zipEntry = zis.getNextEntry();
@@ -233,7 +239,7 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
                 map.put("CFBundleVersion", parametersCFBundleVersion.toString());
                 //Application display name parameters = (NSString)rootDict.objectForKey("CFBundleDisplayName");
                 NSString parametersCFBundleDisplayName = (NSString) rootDict.objectForKey("CFBundleDisplayName");
-                if(null == parametersCFBundleDisplayName){
+                if (null == parametersCFBundleDisplayName) {
                     parametersCFBundleDisplayName = (NSString) rootDict.objectForKey("CFBundleName");
                 }
                 map.put("CFBundleDisplayName", parametersCFBundleDisplayName.toString());
@@ -257,7 +263,41 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
                 map.put("CFBundleSupportedPlatforms", parametersCFBundleSupportedPlatforms.toString());*/
             }
 
+            if (null != embeddedMobileprovisionFile) {
+                String raw = FileUtils.readTextFile(embeddedMobileprovisionFile);
+                String endStr = "</plist>";
+                int startIndex = raw.indexOf("<plist");
+                int endIndex = raw.indexOf(endStr);
+                if (startIndex >=0 && endIndex >= 0) {
+                    try {
+                        String contents = raw.substring(startIndex, endIndex + endStr.length());
 
+                        NSDictionary rootDict = (NSDictionary) PropertyListParser.parse(contents.getBytes(StandardCharsets.UTF_8));
+                        NSDate ExpirationDate = (NSDate) rootDict.objectForKey("ExpirationDate");
+                        if(null != ExpirationDate){
+                            app.setCertificateExpirationDate(new Timestamp(ExpirationDate.getDate().getTime()));
+                            map.put("CertificateExpirationDate", String.valueOf(ExpirationDate.getDate().getTime()));
+                        }
+                        NSString appIDName = (NSString) rootDict.objectForKey("AppIDName");
+                        NSArray ApplicationIdentifierPrefix = (NSArray) rootDict.objectForKey("ApplicationIdentifierPrefix");
+                        NSDate CreationDate = (NSDate) rootDict.objectForKey("CreationDate");
+                        NSArray Platform = (NSArray) rootDict.objectForKey("Platform");
+                        NSNumber IsXcodeManaged = (NSNumber) rootDict.objectForKey("IsXcodeManaged");
+                        NSArray DeveloperCertificates = (NSArray) rootDict.objectForKey("DeveloperCertificates");
+                        NSData DEREncodedProfile = (NSData) rootDict.objectForKey("DER-Encoded-Profile");
+                        NSDictionary Entitlements = (NSDictionary) rootDict.objectForKey("Entitlements");
+                        NSString Name = (NSString) rootDict.objectForKey("Name");
+                        NSNumber ProvisionsAllDevices = (NSNumber) rootDict.objectForKey("ProvisionsAllDevices");
+                        NSArray TeamIdentifier = (NSArray) rootDict.objectForKey("TeamIdentifier");
+                        NSString TeamName = (NSString) rootDict.objectForKey("TeamName");
+                        NSNumber TimeToLive = (NSNumber) rootDict.objectForKey("TimeToLive");
+                        NSString UUID = (NSString) rootDict.objectForKey("UUID");
+                        NSNumber Version = (NSNumber)  rootDict.objectForKey("Version");
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            }
             app.setPackageName(map.get("CFBundleIdentifier"));
             app.setVersionCode(null == map.get("CFBundleVersion") ? null : Long.valueOf(map.get("CFBundleVersion").replaceAll("\\.", "")));
             app.setVersionCodeString(map.get("CFBundleVersion"));

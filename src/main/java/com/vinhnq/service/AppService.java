@@ -12,4 +12,5 @@ public interface AppService {
     List<AppInfoBean> getAllListAppInfo(String deleteFlg, boolean encrypt);
     List<AppInfoBean> getListAppInfoForHome(boolean encrypt);
     List<AppInfoBean> getListAppCondition(AppInfoBean appInfoBean, boolean encrypt);
+    void checkCertificateExpirationDate();
 }

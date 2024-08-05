@@ -18,6 +18,7 @@ public class AppInfo {
     private String manifestPath;
     private Double appSize;
     private String appSizeUnit;
+    private Timestamp certificateExpirationDate;
     private String deleteFlg;
     private String updateContent;
     private Timestamp createDate;
@@ -145,6 +146,16 @@ public class AppInfo {
 
     public void setAppSizeUnit(String appSizeUnit) {
         this.appSizeUnit = appSizeUnit;
+    }
+
+    @Basic
+    @Column(name = "certificate_expiration_date", nullable = true)
+    public Timestamp getCertificateExpirationDate() {
+        return certificateExpirationDate;
+    }
+
+    public void setCertificateExpirationDate(Timestamp certificateExpirationDate) {
+        this.certificateExpirationDate = certificateExpirationDate;
     }
 
     @Basic
