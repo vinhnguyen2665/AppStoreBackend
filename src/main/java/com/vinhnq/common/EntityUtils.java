@@ -778,6 +778,9 @@ public class EntityUtils {
         if (null != appInfo.getUpdateContent()) {
             appInfoBean.setUpdateContent(appInfo.getUpdateContent());
         }
+        if (null != appInfo.getCertificateExpirationDate()) {
+            appInfoBean.setCertificateExpirationDate(appInfo.getCertificateExpirationDate());
+        }
 
         if (encrypt) {
             return appInfoBean.encrypt();
