@@ -36,32 +36,32 @@ public class SchedulerController {
 	}
 
 
-	@Scheduled(fixedDelay = 30000)
+	@Scheduled(fixedDelay =  12 * 60 * 60 * 1000)
 	public void alertScheduler() {
-//		try {
-//		//	ResponseAPI<String>  alert = alertService.alertStepCounter(userId, 5);
-//		//	System.err.println(alert.getMessage());
-//			ReadFileInformationService readFileInformationService = new ReadFileInformationServiceImpl();
-//
-//			AppInfoBean appInfoBean = new AppInfoBean();
-//			appInfoBean.setDeleteFlg(CommonConst.DELETE_FLG.NON_DELETE);
-//			appInfoBean.setAppType(AppInfoBean.IPA);
-//			List<AppInfo> appInfos = this.appInfoDAO.getListApp(appInfoBean);
-//			int total = appInfos.
-//			for (AppInfo appInfo : appInfos) {
-//				if ("ipa".equals(appInfo.getAppType()) && null == appInfo.getCertificateExpirationDate()) {
-//					System.out.println(appInfo.getId());
-//					AppInfoBean infoBean = readFileInformationService.readFileIPA(
-//							new File(appInfo.getAppPath()), new FileSize(15D, "MB"),
-//							"host");
-//					appInfo.setCertificateExpirationDate(infoBean.getCertificateExpirationDate());
-//					this.appInfoRepository.saveAndFlush(appInfo);
-//				}
-//			}
-//			System.out.println("Done");
-//		} catch (Exception ex) {
-//			logger.error(ex.getMessage(), ex);
-//		}
+		try {
+		//	ResponseAPI<String>  alert = alertService.alertStepCounter(userId, 5);
+		//	System.err.println(alert.getMessage());
+			ReadFileInformationService readFileInformationService = new ReadFileInformationServiceImpl();
+
+			AppInfoBean appInfoBean = new AppInfoBean();
+			appInfoBean.setDeleteFlg(CommonConst.DELETE_FLG.NON_DELETE);
+			appInfoBean.setAppType(AppInfoBean.IPA);
+			List<AppInfo> appInfos = this.appInfoDAO.getListApp(appInfoBean);
+//			int total = appInfos.size();
+			for (AppInfo appInfo : appInfos) {
+				if ("ipa".equals(appInfo.getAppType()) && null == appInfo.getCertificateExpirationDate()) {
+					System.out.println(appInfo.getId());
+					AppInfoBean infoBean = readFileInformationService.readFileIPA(
+							new File(appInfo.getAppPath()), new FileSize(15D, "MB"),
+							"host");
+					appInfo.setCertificateExpirationDate(infoBean.getCertificateExpirationDate());
+					this.appInfoRepository.saveAndFlush(appInfo);
+				}
+			}
+			System.out.println("Done");
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+		}
 	}
 
 }

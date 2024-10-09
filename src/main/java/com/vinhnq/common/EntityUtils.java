@@ -701,6 +701,9 @@ public class EntityUtils {
         if (null != appInfoBean.getAppSizeUnit()) {
             appInfo.setAppSizeUnit(appInfoBean.getAppSizeUnit());
         }
+        if (null != appInfoBean.getCertificateExpirationDate()) {
+            appInfo.setCertificateExpirationDate(appInfoBean.getCertificateExpirationDate());
+        }
         return appInfo;
     }
 

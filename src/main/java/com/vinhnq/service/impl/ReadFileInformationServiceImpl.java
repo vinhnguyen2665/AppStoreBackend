@@ -303,6 +303,7 @@ public class ReadFileInformationServiceImpl implements ReadFileInformationServic
             app.setVersionCodeString(map.get("CFBundleVersion"));
             app.setVersionName(map.get("CFBundleShortVersionString"));
             app.setAppName(map.get("CFBundleDisplayName"));
+            app.setAppName(map.get("CertificateExpirationDate"));
             app.setAppSize(size.getValueFormat());
             app.setAppSizeUnit(size.getUnit());
 
